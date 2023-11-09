@@ -1,10 +1,13 @@
 console.log('App is connected');
 
+let sellBtns;
+
 // Protagonist of our application
 const barbie = {
     name: 'Barbie',
     wardrobe: [],
     portfolio: [],
+    garage: [],
     wallet: 0
 }
 
@@ -81,9 +84,20 @@ class Property {
     }
 }
 
+class Car {
+    constructor (make, model, color, price, income) {
+    this.make = make;
+    this.model = model;
+    this.color = color;
+    this.price = price;
+    this.income = income;
+    }
+}
+
 const birkin = new Clothing('Birkin Bag', 'Hermes', 'purple', 'bag', 'lg', 15470 )
 const redBottoms = new Clothing('Red Bottoms', 'Christian Loboutin', 'black', 'shoes', '6', 3000)
 const rentalProp = new Property('Condo', '600 sq. ft.', 50000, 500)
+const tesla = new Car ('Tezzy', 'Plaid', 'Pink', '50000', 150)
 
 
 // Game Screen
@@ -98,13 +112,17 @@ barbie.render = () => {
     <h3> Currently ${barbie.name} has $${barbie.wallet} in their bank account</h3>
     <div> <h2>Wardrobe Contains: </h2> 
     <ul>${
-        barbie.wardrobe.map((item => {
+        barbie.wardrobe.map(((item, index) => {
+            // let index = index + 1;
+            // console.log(index);
             return `<li>
             ${barbie.name} has a ${item.color} 
             ${item.name} made by ${item.designer}
             that is worth ${item.price} in size 
             ${item.size} 
-            </li>`
+            </li>
+            <button class="sell-btn">Sell</button>
+            `
         })).join('')
     }</ul>
     <div> <h2>Portfolio Contains: </h2> 
@@ -118,7 +136,21 @@ barbie.render = () => {
         })).join('')
     }</ul>
     </div>
+    <div> <h2>Garage Contains: </h2> 
+    <ul>${
+        barbie.garage.map((item => {
+            return `<li>
+            ${barbie.name} has a ${item.color} 
+            ${item.make} that is worth $${item.price} and takes out
+            $${item.income} per week.
+            </li>`
+        })).join('')
+    }</ul>
+    </div>
 `;
+    sellBtns = document.querySelectorAll(".sell-btn");
+    console.log(sellBtns);
+    sellBtnListener(sellBtns);
 }
 
 barbie.render()
@@ -141,6 +173,19 @@ birkinButton.addEventListener('click', ()=>{
 
 })
 
+const sellBirkinButton = document.getElementById('birkin-sell');
+
+sellBirkinButton.addEventListener('click', ()=>{
+    const index = barbie.wardrobe.indexOf(birkin);
+    if (index !== -1) {
+        barbie.wardrobe = barbie.wardrobe.slice(0, index).concat(barbie.wardrobe.slice(index + 1));
+        barbie.wallet += birkin.price * (Math.floor(Math.random() * 1.3 + 0.7)+1)
+        barbie.render();
+    } else {
+        alert("You do not have any Birkin items to sell!")
+    }
+})
+
 const rbButton = document.getElementById('red-bottoms');
 
 rbButton.addEventListener('click', ()=>{
@@ -153,6 +198,19 @@ rbButton.addEventListener('click', ()=>{
     }
 
 })
+
+const sellRbButton = document.getElementById('rb-sell');
+
+sellRbButton.addEventListener('click', () => {
+    const index = barbie.wardrobe.indexOf(redBottoms);
+    if (index !== -1) {
+        barbie.wardrobe = barbie.wardrobe.slice(0, index).concat(barbie.wardrobe.slice(index + 1));
+        barbie.wallet += redBottoms.price * (Math.floor(Math.random() * 1.3 + 0.7)+1)
+        barbie.render();
+    } else {
+        alert("You do not have any Red Bottom items to sell!");
+    }
+});
 
 const rentalButton = document.getElementById('rental');
 
@@ -168,12 +226,87 @@ rentalButton.addEventListener('click', ()=>{
 
 })
 
-const workButton = document.getElementById('work');
+const sellRentalButton = document.getElementById('rental-sell');
 
-workButton.addEventListener('click', ()=>{
-    barbie.wallet += barbie.career.income; // WE updated the wllet that belongs to barbie so the object was changed
-    // the object control the information that is visible to us on the screen
-    // I want to re-render the content so that i can see the updated information in the browser
-    barbie.render();
+sellRentalButton.addEventListener('click', ()=>{
+    if(barbie.portfolio.includes(rentalProp)){
+        barbie.portfolio.pop(rentalProp)
+        barbie.wallet += rentalProp.price * (Math.floor(Math.random() * 1.3 + 0.7)+1)
+        barbie.career.income -= rentalProp.income
+        barbie.render();
+    } else {
+        alert("You do not have any Portfolio items to sell!")
+    }
 })
 
+const workButton = document.getElementById('work');
+let isCooldownActive = false;
+
+workButton.addEventListener('click', () => {
+    if (isCooldownActive) {
+        return; // returning that its active below is the code if its true button is gonna be disabled.
+    }
+
+    workButton.disabled = true;
+    isCooldownActive = true;
+
+    // render still in here to refresh the whole income
+    barbie.wallet += barbie.career.income;
+    barbie.render();
+
+    let cooldownDuration = 2; // CD COOLDOWN is 2 sec
+    workButton.textContent = `Cooldown: ${cooldownDuration} seconds`;
+
+    const countdownInterval = setInterval(() => {
+        cooldownDuration--;
+        if (cooldownDuration <= 0) { // text less then or equal to 0 seconds will enable the button
+            clearInterval(countdownInterval);
+            workButton.textContent = 'Work';
+            workButton.disabled = false;
+            isCooldownActive = false;
+        } else {
+            workButton.textContent = `Cooldown: ${cooldownDuration} seconds`; // displayes text context of seconds left
+        }
+    }, 1000); // every 1 sec
+});
+
+function sellBtnListener(buttons) {
+    buttons.forEach((btn, index) => {
+        btn.addEventListener("click", ()=> {            
+            sellItem(index)
+        })
+    })
+}
+
+const tezzyButton = document.getElementById('tezzy');
+
+tezzyButton.addEventListener('click', ()=>{
+    if(barbie.wallet >= tesla.price){
+        barbie.garage.push(tesla);
+        barbie.wallet -= tesla.price;
+        barbie.career.income -= tesla.income;
+        barbie.render();
+        // WE updated the wardrobe that belongs to barbie so the object was changed
+    // the object control the information that is visible to us on the screen
+    // I want to re-render the content so that i can see the updated information in the browser
+    } else {
+        alert('Stop trippin you know you aint got it like that');
+    }
+
+})
+
+function sellItem(itemIdx) {
+    
+    // calculate sell price
+    
+    const randomMultiplier = Math.floor(Math.random() * 1.3 + 0.7) + 1;
+    const earnings = barbie.wardrobe[itemIdx].price * randomMultiplier;
+    barbie.wallet += earnings;
+
+    // remove item from wardrobe
+    barbie.wardrobe.splice(barbie.wardrobe[itemIdx],1);
+    console.log(barbie.wardrobe);
+    
+    barbie.render();
+
+}
