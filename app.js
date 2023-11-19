@@ -57,7 +57,6 @@ const careerIncomes = [
 ];
 const careers = [];
 
-
 const careerDropdown = document.getElementById('career-dropdown');
 
 function populateCareerDropdown() {
@@ -133,6 +132,52 @@ const tesla = new Car ('Tezzy', 'Plaid', 'Pink', '50000', 150)
 
 
 // Game Screen
+const kenDiv = document.getElementById('ken');
+
+kenDiv.innerHTML = `
+<h1>${ken.name} Status</h1>
+<h3>${ken.name}'s job is beach </h3>
+<h3> Each week ${ken.name} takes home $${8000}</h3>
+<h3> Currently ${ken.name} has $${ken.wallet} in their bank account</h3>
+<div> <h2>Wardrobe Contains: </h2> 
+<ul>${
+    ken.wardrobe.map(((item, index) => {
+        // let index = index + 1;
+        // console.log(index);
+        return `<li>
+        ${ken.name} has a ${item.color} 
+        ${item.name} made by ${item.designer}
+        that is worth ${item.price} in size 
+        ${item.size} 
+        </li>
+        <button class="sell-btn">Sell</button>
+        `
+    })).join('')
+}</ul>
+<div> <h2>Portfolio Contains: </h2> 
+<ul>${
+    ken.portfolio.map((item => {
+        return `<li>
+        ${ken.name} has a ${item.size} 
+        ${item.type} that is worth $${item.price} and earns her an extra 
+        $${item.income} weekly
+        </li>`
+    })).join('')
+}</ul>
+</div>
+<div> <h2>Garage Contains: </h2> 
+<ul>${
+    ken.garage.map((item => {
+        return `<li>
+        ${ken.name} has a ${item.color} 
+        ${item.make} that is worth $${item.price} and takes out
+        $${item.income} per week.
+        </li>`
+    })).join('')
+}</ul>
+</div>
+`
+
 
 barbie.el = document.getElementById('barbie');
 
