@@ -2,9 +2,17 @@ console.log('App is connected');
 
 let sellBtns;
 
-// Protagonist of our application
+// Protagonists of our application
 const barbie = {
     name: 'Barbie',
+    wardrobe: [],
+    portfolio: [],
+    garage: [],
+    wallet: 0
+}
+
+const ken = {
+    name: 'Ken',
     wardrobe: [],
     portfolio: [],
     garage: [],
@@ -49,6 +57,30 @@ const careerIncomes = [
 ];
 const careers = [];
 
+
+const careerDropdown = document.getElementById('career-dropdown');
+
+function populateCareerDropdown() {
+    careerDescriptions.forEach(career => {
+        const option = document.createElement('option');
+        option.value = career.name;
+        option.text = career.name; 
+        careerDropdown.appendChild(option); 
+    });
+}
+
+populateCareerDropdown();
+
+careerDropdown.addEventListener('change', () => {
+    const selectedCareerName = careerDropdown.value;
+    const selectedCareer = careerDescriptions.find(career => career.name === selectedCareerName);
+    
+    if (selectedCareer) {
+        const income = careerIncomes[randomization(careerIncomes.length)];
+        barbie.career = new Career(selectedCareer.name, selectedCareer.description, income, `${selectedCareer.name}-${income}`);
+        barbie.render();
+    }
+});
 
 const randomization = (limit) => {
  return Math.floor(Math.random() * limit)
@@ -154,8 +186,6 @@ barbie.render = () => {
 }
 
 barbie.render()
-
-
 
 const birkinButton = document.getElementById('birkin');
 
